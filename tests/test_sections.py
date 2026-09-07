@@ -4,9 +4,10 @@ from __future__ import annotations
 
 from special_export_mcp.wikitext.sections import (
     HeadingStack,
+    WikitextContext,
     classify_heading,
+    clean_heading,
     clean_heading_text,
-    update_literal_state,
 )
 
 
@@ -84,23 +85,58 @@ def test_join_uses_the_arrow_separator() -> None:
     assert HeadingStack.join([]) == ""
 
 
-def test_literal_state_toggles_on_nowiki_open_and_close() -> None:
-    state = False
-    state = update_literal_state("<nowiki>", state)
-    assert state is True
-    state = update_literal_state("== not a heading here ==", state)
-    assert state is True
-    state = update_literal_state("</nowiki>", state)
-    assert state is False
+def test_context_suppresses_lines_inside_nowiki() -> None:
+    context = WikitextContext()
+    assert context.suppresses_markup("<nowiki>") is False
+    assert context.suppresses_markup("== not a heading here ==") is True
+    assert context.suppresses_markup("</nowiki>") is True
+    assert context.suppresses_markup("== heading again ==") is False
 
 
-def test_literal_state_toggles_on_pre_open_and_close() -> None:
-    state = update_literal_state("<pre>", False)
-    assert state is True
-    state = update_literal_state("</pre>", state)
-    assert state is False
+def test_context_suppresses_lines_inside_pre() -> None:
+    context = WikitextContext()
+    assert context.suppresses_markup("<pre>") is False
+    assert context.suppresses_markup("{| not a table") is True
+    assert context.suppresses_markup("</pre>") is True
+    assert context.suppresses_markup("ordinary text") is False
 
 
-def test_literal_state_unaffected_by_unrelated_lines() -> None:
-    assert update_literal_state("just text", False) is False
-    assert update_literal_state("just text", True) is True
+def test_self_closing_nowiki_does_not_enter_literal_state() -> None:
+    context = WikitextContext()
+    assert context.suppresses_markup("<nowiki />") is False
+    assert context.suppresses_markup("== heading ==") is False
+
+
+def test_literal_tags_inside_comments_do_not_change_state() -> None:
+    context = WikitextContext()
+    assert context.suppresses_markup("<!-- mention <nowiki> here -->") is False
+    assert context.suppresses_markup("== heading ==") is False
+
+
+def test_context_processes_close_then_open_in_source_order() -> None:
+    context = WikitextContext()
+    context.suppresses_markup("<nowiki>")
+    assert context.suppresses_markup("</nowiki><pre>") is True
+    assert context.suppresses_markup("== still literal ==") is True
+    assert context.suppresses_markup("</pre>") is True
+    assert context.suppresses_markup("== heading again ==") is False
+
+
+def test_clean_heading_preserves_unknown_template_warning() -> None:
+    text, warnings = clean_heading("{{unsupported_heading|Engines}}")
+    assert text == ""
+    assert len(warnings) == 1
+    assert warnings[0].kind == "unknown_template"
+    assert warnings[0].name == "unsupported heading"
+
+
+def test_heading_warning_snapshots_are_independent() -> None:
+    _, warnings = clean_heading("{{unsupported_heading|Engines}}")
+    stack = HeadingStack()
+    stack.push(2, "", warnings)
+
+    first = stack.warning_snapshot()
+    second = stack.warning_snapshot()
+    first[0].table_index = 1
+
+    assert second[0].table_index is None
