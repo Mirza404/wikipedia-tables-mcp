@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from special_export_mcp.wikitext.tables import Limits, parse_tables
+from special_export_mcp.wikitext.templates import TemplateWarning
 
 
 def test_basic_table_headers_and_rows() -> None:
@@ -488,6 +489,7 @@ def test_heading_template_warning_is_attached_to_each_table_snapshot() -> None:
     assert [table.section for table in tables] == ["Generation", "Generation"]
     for index, table in enumerate(tables):
         warning = next(w for w in table.warnings if w.kind == "unknown_template")
+        assert isinstance(warning, TemplateWarning)
         assert warning.table_index == index
         assert warning.row is None
         assert warning.column is None
