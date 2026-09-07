@@ -111,7 +111,10 @@ class SpecialExportClient:
 
         assert fetch_result.wikitext is not None
         parsed_tables = parse_tables(
-            fetch_result.wikitext, table_class=self.table_class, limits=self.limits
+            fetch_result.wikitext,
+            table_class=self.table_class,
+            limits=self.limits,
+            strict=self.strict,
         )
 
         table_results = [self._clean_table(table) for table in parsed_tables]
