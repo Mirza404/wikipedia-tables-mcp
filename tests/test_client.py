@@ -155,6 +155,49 @@ def test_strict_mode_raises_on_a_malformed_template(mock_session: MagicMock) -> 
         client.get_page_tables("X")
 
 
+def test_heading_template_warning_reaches_table_and_page_results(
+    mock_session: MagicMock,
+) -> None:
+    xml_text = (
+        '<mediawiki xmlns="http://www.mediawiki.org/xml/export-0.11/">'
+        "<page><title>X</title><id>1</id>"
+        "<revision><id>1</id><timestamp>2026-01-01T00:00:00Z</timestamp>"
+        '<text>== {{unsupported_heading|Engines}} ==\n{| class="wikitable"\n'
+        "|-\n! A\n|-\n| x\n|}</text>"
+        "</revision></page></mediawiki>"
+    )
+    mock_session.request.return_value = FakeResponse(xml_text)
+
+    client = SpecialExportClient(min_request_interval=0)
+    result = client.get_page_tables("X")
+
+    warning = result["tables"][0]["warnings"][0]
+    assert warning["kind"] == "unknown_template"
+    assert warning["table_index"] == 0
+    assert result["warnings"] == [warning]
+
+
+def test_strict_mode_raises_on_an_unknown_heading_template(
+    mock_session: MagicMock,
+) -> None:
+    from special_export_mcp.errors import TemplateResolutionError
+
+    xml_text = (
+        '<mediawiki xmlns="http://www.mediawiki.org/xml/export-0.11/">'
+        "<page><title>X</title><id>1</id>"
+        "<revision><id>1</id><timestamp>2026-01-01T00:00:00Z</timestamp>"
+        '<text>== {{unsupported_heading|Engines}} ==\n{| class="wikitable"\n'
+        "|-\n! A\n|-\n| x\n|}</text>"
+        "</revision></page></mediawiki>"
+    )
+    mock_session.request.return_value = FakeResponse(xml_text)
+
+    client = SpecialExportClient(min_request_interval=0, strict=True)
+
+    with pytest.raises(TemplateResolutionError):
+        client.get_page_tables("X")
+
+
 def test_table_class_filter_is_passed_through(mock_session: MagicMock) -> None:
     xml_text = (
         '<mediawiki xmlns="http://www.mediawiki.org/xml/export-0.11/">'
