@@ -409,3 +409,85 @@ after
     assert outer.parent_table_index is None
     # the nested table's own text is removed from the parent cell's value
     assert outer.rows == [["before after"]]
+
+
+def test_self_closing_nowiki_does_not_hide_later_heading() -> None:
+    wikitext = """
+== Before ==
+<nowiki />
+== Engines ==
+{|
+|-
+! Model
+|-
+| Real data
+|}
+"""
+    table = parse_tables(wikitext)[0]
+    assert table.section == "Engines"
+
+
+def test_heading_inside_html_comment_does_not_change_ancestry() -> None:
+    wikitext = """
+== Real section ==
+<!--
+== Editorial note ==
+-->
+{|
+|-
+! Model
+|-
+| Real data
+|}
+"""
+    table = parse_tables(wikitext)[0]
+    assert table.section == "Real section"
+
+
+def test_literal_table_examples_are_not_returned() -> None:
+    real_table = """{|
+|-
+! Model
+|-
+| Real data
+|}
+"""
+    for tag in ("nowiki", "pre"):
+        example = f"""<{tag}>
+{{|
+|-
+! Example
+|-
+| Not data
+|}}
+</{tag}>
+"""
+        tables = parse_tables(example + real_table)
+        assert len(tables) == 1
+        assert tables[0].rows == [["Real data"]]
+
+
+def test_heading_template_warning_is_attached_to_each_table_snapshot() -> None:
+    wikitext = """
+== Generation {{unsupported_heading|Mk1}} ==
+{|
+|-
+! A
+|-
+| first
+|}
+{|
+|-
+! A
+|-
+| second
+|}
+"""
+    tables = parse_tables(wikitext)
+
+    assert [table.section for table in tables] == ["Generation", "Generation"]
+    for index, table in enumerate(tables):
+        warning = next(w for w in table.warnings if w.kind == "unknown_template")
+        assert warning.table_index == index
+        assert warning.row is None
+        assert warning.column is None
