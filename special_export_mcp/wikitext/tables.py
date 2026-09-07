@@ -9,7 +9,8 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 
-from .sections import HeadingStack, classify_heading, clean_heading_text, update_literal_state
+from .sections import HeadingStack, WikitextContext, classify_heading, clean_heading
+from .templates import TemplateWarning
 from .tokenizer import (
     LineKind,
     classify_line,
@@ -74,7 +75,7 @@ class ParsedTable:
     index: int = 0
     parent_table_index: int | None = None
     truncated: bool = False
-    warnings: list[TableWarning] = field(default_factory=list)
+    warnings: list[TableWarning | TemplateWarning] = field(default_factory=list)
     section: str = ""
     section_path: list[str] = field(default_factory=list)
 
@@ -149,6 +150,7 @@ def parse_tables(
     *,
     table_class: str | None = None,
     limits: Limits | None = None,
+    strict: bool = False,
 ) -> list[ParsedTable]:
     limits = limits or Limits()
     lines = wikitext.splitlines()
@@ -162,9 +164,13 @@ def parse_tables(
 
     heading_stack = HeadingStack()
     section_snapshot_of: dict[int, list[str]] = {}
-    in_literal = False
+    section_warnings_of: dict[int, list[TemplateWarning]] = {}
+    context = WikitextContext()
 
     for raw_line in lines:
+        if not stack and context.suppresses_markup(raw_line):
+            continue
+
         classified = classify_line(raw_line)
 
         if classified.kind == LineKind.TABLE_OPEN:
@@ -173,20 +179,17 @@ def parse_tables(
             next_id += 1
             parent_id_of[table_id] = parent_id
             section_snapshot_of[table_id] = heading_stack.snapshot()
+            section_warnings_of[table_id] = heading_stack.warning_snapshot()
             stack.append(_TableFrame(classified.payload))
             id_stack.append(table_id)
             continue
 
         if not stack:
-            # A '='-looking line inside <nowiki>/<pre> is not a heading
-            # (spec 004 section 2); a table body is handled above since
-            # this branch only runs when no table is currently open.
-            in_literal = update_literal_state(raw_line, in_literal)
-            if not in_literal:
-                heading = classify_heading(raw_line)
-                if heading is not None:
-                    level, raw_text = heading
-                    heading_stack.push(level, clean_heading_text(raw_text))
+            heading = classify_heading(raw_line)
+            if heading is not None:
+                level, raw_text = heading
+                text, warnings = clean_heading(raw_text, strict=strict)
+                heading_stack.push(level, text, warnings)
             continue
 
         frame = stack[-1]
@@ -211,6 +214,7 @@ def parse_tables(
             parsed.index = len(finished)
             parsed.section_path = section_snapshot_of[table_id]
             parsed.section = HeadingStack.join(parsed.section_path)
+            parsed.warnings.extend(section_warnings_of[table_id])
             for warning in parsed.warnings:
                 warning.table_index = parsed.index
             id_to_output_index[table_id] = parsed.index
@@ -269,7 +273,7 @@ def _build_parsed_table(
     parent_id: int | None,
     limits: Limits,
 ) -> ParsedTable:
-    warnings: list[TableWarning] = []
+    warnings: list[TableWarning | TemplateWarning] = []
     truncated = False
 
     headers: list[str] = []
