@@ -133,3 +133,65 @@ def test_golf_mk4_every_power_cell_yields_a_kw_figure() -> None:
             misses.append(row)
 
     assert misses == []
+
+
+def test_golf_mk4_engine_table_section_ancestry() -> None:
+    # Acceptance criteria 1-2 in docs/specs/004-section-ancestry.md.
+    wikitext = _wikitext_from_export_xml(FIXTURES / "volkswagen_golf_mk4.xml")
+    tables = parse_tables(wikitext)
+    assert tables[0].section == "Engine choices > Golf and Jetta"
+    assert len(tables[0].section_path) == 2
+
+
+def test_golf_mk4_section_breadcrumbs_are_cleaned() -> None:
+    # Criterion 3: no [[, no ''', no <ref> in any breadcrumb.
+    wikitext = _wikitext_from_export_xml(FIXTURES / "volkswagen_golf_mk4.xml")
+    tables = parse_tables(wikitext)
+    for table in tables:
+        for part in table.section_path:
+            assert "[[" not in part
+            assert "'''" not in part
+            assert "<ref" not in part
+
+
+def test_skoda_octavia_generations_share_the_trailing_engines_element() -> None:
+    # Criterion 4: several tables share "Engines" but differ in the
+    # leading generation element.
+    wikitext = _wikitext_from_export_xml(FIXTURES / "skoda_octavia.xml")
+    tables = parse_tables(wikitext)
+    engine_tables = [t for t in tables if t.section_path[-1:] == ["Engines"]]
+    assert len(engine_tables) >= 4
+
+    leading_elements = {t.section_path[0] for t in engine_tables}
+    assert len(leading_elements) >= 3
+
+
+def test_skoda_octavia_duplicate_sections_are_genuine() -> None:
+    # Criterion 5: no two tables share an identical section unless the
+    # article genuinely has two tables under one heading. The third- and
+    # fourth-generation "Engines" sections each really do have two tables
+    # (front-wheel-drive and all-wheel-drive "Combi 4x4" variants) with no
+    # subheading between them -- confirmed by reading the raw wikitext.
+    wikitext = _wikitext_from_export_xml(FIXTURES / "skoda_octavia.xml")
+    tables = parse_tables(wikitext)
+
+    sections = [t.section for t in tables if t.section]
+    duplicates = {s for s in sections if sections.count(s) > 1}
+    assert duplicates == {
+        "Third generation (Typ 5E; 2012) > Engines",
+        "Fourth generation (Typ NX; 2020) > Engines",
+    }
+    for section in duplicates:
+        assert sections.count(section) == 2
+
+
+def test_skoda_octavia_heading_anchors_are_stripped() -> None:
+    # The real article's generation headings carry <span class="anchor">
+    # markup before the visible title; the breadcrumb must be plain text.
+    wikitext = _wikitext_from_export_xml(FIXTURES / "skoda_octavia.xml")
+    tables = parse_tables(wikitext)
+    assert any(t.section_path[:1] == ["First generation (Typ 1U; 1996)"] for t in tables)
+    for table in tables:
+        for part in table.section_path:
+            assert "<span" not in part
+            assert "anchor" not in part
