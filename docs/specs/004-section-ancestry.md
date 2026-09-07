@@ -50,7 +50,16 @@ Heading text is itself wikitext. Run it through the Tier 3 inline cleaner:
 `=== [[Volkswagen Bora|Bora]]/Jetta Mk4 ===` becomes `Bora/Jetta Mk4`.
 
 A `=`-looking line inside a `<nowiki>`, `<pre>`, or a `{| ... |}` table body is
-not a heading. Track those states in the tokenizer.
+not a heading. Neither are heading- or table-looking lines inside an HTML
+comment. Track these contexts before classifying table or heading syntax.
+Self-closing tags such as `<nowiki />` do not enter literal mode, and tags
+inside HTML comments do not change literal state.
+
+Tier 3's warning policy also applies to heading text. If cleaning a heading
+encounters an unknown or malformed template, attach that structured warning to
+every table whose ancestry includes the heading. In strict mode, raise the same
+`TemplateResolutionError` that the template would raise inside a cell. Never
+turn an unsupported heading template into an empty breadcrumb silently.
 
 ## 3. The heading stack
 
