@@ -186,6 +186,7 @@ TO_KW = {
     "kW": 1.0,
     "W": 0.001,
     "PS": 0.73549875,  # 75 kgf.m/s, exact
+    "hp-metric": 0.73549875,  # {{convert}}'s own alias for PS; seen in the wild
     "hp": 0.745699871582,  # mechanical horsepower, exact
     "bhp": 0.745699871582,  # treated as mechanical hp
     "cv": 0.73549875,  # metric, same as PS
@@ -253,20 +254,35 @@ def _format_canonical_value(value: float) -> str:
     return f"{_round_half_away_from_zero(value, 1):.1f}"
 
 
+#  A range can also be authored as one argument with an embedded hyphen or
+#  en dash ({{cvt|133-136|PS|kW hp|0}}), as an alternative to two separate
+#  positional arguments. Found in the wild during manual verification
+#  (spec 007 section 6) -- without this, "133-136" fails the numeric check
+#  on argument 1 and the whole cell is lost to an unknown_template warning.
+_INLINE_RANGE_RE = re.compile(r"^\s*([\d,.]+)\s*[-–]\s*([\d,.]+)\s*$")
+
+
 @_register("convert", "cvt")
 def _h_convert(positional: list[str], _named: dict[str, str]) -> str:
     if not positional:
         raise _UnknownTemplateShape("missing value")
-    value1_raw = positional[0]
-    value1_num = _parse_number(value1_raw)
-    if value1_num is None:
-        raise _UnknownTemplateShape("argument 1 is not numeric")
 
-    rest = positional[1:]
-    value2_raw: str | None = None
-    if rest and _parse_number(rest[0]) is not None:
-        value2_raw = rest[0]
-        rest = rest[1:]
+    inline_range = _INLINE_RANGE_RE.match(positional[0])
+    if inline_range is not None:
+        value1_raw, value2_raw = inline_range.group(1), inline_range.group(2)
+        rest = positional[1:]
+    else:
+        value1_raw = positional[0]
+        if _parse_number(value1_raw) is None:
+            raise _UnknownTemplateShape("argument 1 is not numeric")
+        rest = positional[1:]
+        value2_raw = None
+        if rest and _parse_number(rest[0]) is not None:
+            value2_raw = rest[0]
+            rest = rest[1:]
+
+    value1_num = _parse_number(value1_raw)
+    assert value1_num is not None
 
     if not rest:
         raise _UnknownTemplateShape("missing input unit")
@@ -351,9 +367,21 @@ def _h_list(positional: list[str], _named: dict[str, str]) -> str:
     return ", ".join(p for p in positional if p)
 
 
-@_register("clear", "clarify", "citation needed", "cn", "efn", "refn")
+@_register("clear", "clarify", "citation needed", "cn", "efn", "refn", "rh")
 def _h_empty(_positional: list[str], _named: dict[str, str]) -> str:
+    # {{rh}} ("row header") is a styling-only template with no text output
+    # of its own, commonly seen as colspan="N" {{rh}}|Label in real
+    # engine-table divider rows -- see tokenizer.py's _ATTR_TOKEN.
     return ""
+
+
+@_register("n/a")
+def _h_na(_positional: list[str], _named: dict[str, str]) -> str:
+    # Seen 17 times across the manual verification pass's 20 articles --
+    # cheap and common enough to be worth its own handler (spec 003
+    # section 3.4's bar), unlike the article-specific templates (rating,
+    # co2, chem, ...) left as unknown_template warnings.
+    return "N/A"
 
 
 @_register("lang")

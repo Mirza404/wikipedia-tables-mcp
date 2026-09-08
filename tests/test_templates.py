@@ -51,6 +51,14 @@ def test_convert_hp_to_kw() -> None:
     assert result == "150 hp (112 kW)"
 
 
+def test_convert_hp_metric_alias_for_ps() -> None:
+    # {{convert}}'s own alias for metric horsepower, distinct from "PS" and
+    # from mechanical "hp" -- found in real articles (e.g. Renault Clio)
+    # during the manual verification pass. Same conversion factor as PS.
+    result, _ = _resolve("{{convert|90|hp-metric|kW|0|abbr=on}}")
+    assert result == "90 hp-metric (66 kW)"
+
+
 def test_convert_lbft_to_nm() -> None:
     result, _ = _resolve("{{convert|200|lbft|Nm}}")
     assert result == "200 lbft (271 Nm)"
@@ -69,6 +77,33 @@ def test_convert_range_with_unconvertible_unit() -> None:
 def test_convert_range_with_convertible_unit() -> None:
     result, _ = _resolve("{{convert|100|120|hp|kW}}")
     assert result == "100–120 hp (75–89 kW)"
+
+
+def test_convert_inline_range_with_a_hyphen_in_one_argument() -> None:
+    # An alternative real MediaWiki range syntax to two separate positional
+    # arguments -- found in the wild (spec 007 section 6 verification pass)
+    # as {{cvt|133-136|PS|kW hp|0}}. Without this, "133-136" fails the
+    # numeric check on argument 1 and produces an unknown_template warning
+    # plus an empty cell, losing real power data.
+    result, warnings = _resolve("{{cvt|133-136|PS|kW hp|0}}")
+    assert result == "133–136 PS (98–100 kW)"
+    assert warnings == []
+
+
+def test_convert_inline_range_with_an_en_dash() -> None:
+    result, _ = _resolve("{{convert|100–120|hp|kW}}")
+    assert result == "100–120 hp (75–89 kW)"
+
+
+def test_convert_inline_range_with_an_unconvertible_unit() -> None:
+    result, _ = _resolve("{{Convert|169-173|km/h|0|abbr=on}}")
+    assert result == "169–173 km/h"
+
+
+def test_na_template() -> None:
+    result, warnings = _resolve("{{n/a}}")
+    assert result == "N/A"
+    assert warnings == []
 
 
 def test_convert_already_canonical_unit_is_not_duplicated() -> None:
