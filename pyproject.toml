@@ -41,7 +41,7 @@ include = ["special_export_mcp*"]
 [tool.ruff]
 line-length = 100
 target-version = "py310"
-extend-exclude = ["docs"]
+extend-exclude = ["docs", "README.md"]
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B"]
