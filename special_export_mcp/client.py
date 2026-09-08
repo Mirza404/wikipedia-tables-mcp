@@ -88,14 +88,44 @@ class SpecialExportClient:
         assert result.wikitext is not None
         return result.wikitext
 
-    def get_page_tables(self, title: str, *, refresh: bool = False) -> PageResult:
-        return self.get_pages_tables([title], refresh=refresh)[0]
+    def get_page_tables(
+        self,
+        title: str,
+        *,
+        refresh: bool = False,
+        table_class: str | None = None,
+        limits: Limits | None = None,
+    ) -> PageResult:
+        return self.get_pages_tables(
+            [title], refresh=refresh, table_class=table_class, limits=limits
+        )[0]
 
-    def get_pages_tables(self, titles: Sequence[str], *, refresh: bool = False) -> list[PageResult]:
+    def get_pages_tables(
+        self,
+        titles: Sequence[str],
+        *,
+        refresh: bool = False,
+        table_class: str | None = None,
+        limits: Limits | None = None,
+    ) -> list[PageResult]:
+        """table_class/limits, given here, override the constructor's for this
+        call only -- the MCP surface needs a per-call table_class/max_tables,
+        and this is the one place that may parse, so it is the one place
+        that override belongs (server.py stays fetch- and parse-logic-free)."""
         fetch_results = self._fetcher.fetch_many(list(titles), refresh=refresh)
-        return [self._build_page_result(result) for result in fetch_results]
+        effective_table_class = table_class if table_class is not None else self.table_class
+        effective_limits = limits if limits is not None else self.limits
+        return [
+            self._build_page_result(result, effective_table_class, effective_limits)
+            for result in fetch_results
+        ]
 
-    def _build_page_result(self, fetch_result: FetchResult) -> PageResult:
+    def _build_page_result(
+        self,
+        fetch_result: FetchResult,
+        table_class: str | None,
+        limits: Limits | None,
+    ) -> PageResult:
         if not fetch_result.exists:
             return PageResult(
                 exists=False,
@@ -112,8 +142,8 @@ class SpecialExportClient:
         assert fetch_result.wikitext is not None
         parsed_tables = parse_tables(
             fetch_result.wikitext,
-            table_class=self.table_class,
-            limits=self.limits,
+            table_class=table_class,
+            limits=limits,
             strict=self.strict,
         )
 

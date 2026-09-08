@@ -31,7 +31,6 @@ CLI flags map one to one onto `SpecialExportClient` constructor arguments.
 ```json
 {
   "title": "Volkswagen Golf Mk4",
-  "language": "en",
   "section_filter": null,
   "table_class": null,
   "max_tables": null
@@ -62,7 +61,7 @@ This is the tool a bulk loading phase uses. 50 models is 3 calls.
 ### `get_wikitext`
 
 ```json
-{"title": "Volkswagen Golf Mk4", "language": "en", "section": null}
+{"title": "Volkswagen Golf Mk4", "section": null}
 ```
 
 Returns raw wikitext. Optional `section` returns only the wikitext under a
@@ -85,6 +84,29 @@ pulling a large payload.
 Decision to confirm (Tier 8, Q5): is `list_page_sections` wanted in v1, or is it
 scope creep. Proposal: include it. It is ~20 lines over Tier 4's existing
 heading stack and it is what makes `section_filter` usable.
+
+### Language boundary — decided in this PR
+
+**Decision by the project owner during the Tier 6 PR review:** MCP tools do not
+accept a per-call `language` argument. The earlier JSON examples that included
+`"language": "en"` were inconsistent with the project's settled scope and have
+been corrected as part of this PR.
+
+This decision was reached by deduction from the existing specifications:
+
+1. Tier 0 defines English Wikipedia as the v1 boundary because the bounded
+   template registry is English-specific.
+2. Tier 8 Q9 records English-only support as decided, likely permanently.
+3. Tier 6 constructs one `SpecialExportClient` and deliberately remains a thin
+   adapter. Wikipedia language is therefore process configuration, not a value
+   that changes independently on each tool call.
+
+The CLI-level `--language` option remains because the underlying client already
+supports constructing a process against another Wikipedia host, and retaining
+that escape hatch costs nothing. It does **not** make non-English parsing a
+supported MCP capability: other Wikipedias are not covered by the template
+registry, fixtures, verification, or data-integrity guarantees. A deployment
+that changes `--language` knowingly opts outside the supported v1 contract.
 
 ## 3. Response size
 

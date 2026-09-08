@@ -15,9 +15,10 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-mcp = ["mcp>=1.0"]
+mcp = ["mcp>=2.0,<3.0"]
 dev = [
     "pytest>=8.0",
+    "pytest-asyncio>=0.24",
     "pytest-cov>=5.0",
     "ruff>=0.6",
     "mypy>=1.10",
@@ -56,6 +57,7 @@ markers = [
     "live: makes real network calls, excluded by default",
 ]
 addopts = "-m 'not live'"
+asyncio_mode = "auto"
 
 [tool.coverage.run]
 source = ["special_export_mcp/wikitext"]
