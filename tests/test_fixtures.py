@@ -13,7 +13,7 @@ from pathlib import Path
 import defusedxml.ElementTree as ET
 
 from special_export_mcp.wikitext.inline import clean_cell
-from special_export_mcp.wikitext.tables import parse_tables
+from special_export_mcp.wikitext.tables import TableWarning, parse_tables
 
 FIXTURES = Path(__file__).parent / "fixtures"
 
@@ -100,6 +100,7 @@ def test_golf_mk4_auq_awp_row_has_a_machine_readable_alignment_warning() -> None
         for warning in engine_table.warnings
         if warning.kind == "ambiguous_row_alignment" and warning.row == row_index
     )
+    assert isinstance(warning, TableWarning)
     assert warning.table_index == 0
     assert warning.expected_columns == 7
     assert warning.occupied_columns == 6
