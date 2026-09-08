@@ -147,3 +147,103 @@ class HeadingStack:
     @staticmethod
     def join(path: list[str]) -> str:
         return SECTION_SEPARATOR.join(path)
+
+
+@dataclass
+class SectionInfo:
+    section: str
+    section_path: list[str]
+    table_count: int
+
+
+def list_sections(wikitext: str) -> list[SectionInfo]:
+    """The heading tree: one entry per heading, in document order, each with
+    a count of the top-level tables opened directly under it.
+
+    Deliberately a separate, much lighter pass than tables.py's own scan --
+    this needs no cell/row/rowspan bookkeeping, only heading and table-open
+    tracking. See docs/specs/006-mcp-surface.md, list_page_sections.
+    """
+    lines = wikitext.splitlines()
+    heading_stack = HeadingStack()
+    context = WikitextContext()
+    table_depth = 0
+    sections: list[SectionInfo] = []
+    current: SectionInfo | None = None
+
+    for raw_line in lines:
+        if table_depth == 0 and context.suppresses_markup(raw_line):
+            continue
+        stripped = raw_line.strip()
+
+        if table_depth == 0:
+            heading = classify_heading(raw_line)
+            if heading is not None:
+                level, raw_text = heading
+                text, _ = clean_heading(raw_text)
+                heading_stack.push(level, text)
+                current = SectionInfo(
+                    section=HeadingStack.join(heading_stack.snapshot()),
+                    section_path=heading_stack.snapshot(),
+                    table_count=0,
+                )
+                sections.append(current)
+                continue
+
+        if stripped.startswith("{|"):
+            if table_depth == 0 and current is not None:
+                current.table_count += 1
+            table_depth += 1
+            continue
+        if table_depth > 0 and stripped.startswith("|}"):
+            table_depth -= 1
+            continue
+
+    return sections
+
+
+def extract_section(wikitext: str, query: str) -> str | None:
+    """Raw wikitext (heading line included) of the first heading whose
+    joined breadcrumb contains `query` case-insensitively, through to the
+    next heading at the same or a shallower level. None if no match.
+    """
+    lines = wikitext.splitlines()
+    heading_stack = HeadingStack()
+    context = WikitextContext()
+    table_depth = 0
+    query_lower = query.lower()
+
+    match_start: int | None = None
+    match_level: int | None = None
+
+    for i, raw_line in enumerate(lines):
+        if table_depth == 0 and context.suppresses_markup(raw_line):
+            continue
+        stripped = raw_line.strip()
+
+        if table_depth == 0:
+            heading = classify_heading(raw_line)
+            if heading is not None:
+                level, raw_text = heading
+                if match_start is not None and match_level is not None and level <= match_level:
+                    return "\n".join(lines[match_start:i])
+                text, _ = clean_heading(raw_text)
+                heading_stack.push(level, text)
+                if (
+                    match_start is None
+                    and query_lower in HeadingStack.join(heading_stack.snapshot()).lower()
+                ):
+                    match_start = i
+                    match_level = level
+                continue
+
+        if stripped.startswith("{|"):
+            table_depth += 1
+            continue
+        if table_depth > 0 and stripped.startswith("|}"):
+            table_depth -= 1
+            continue
+
+    if match_start is not None:
+        return "\n".join(lines[match_start:])
+    return None
