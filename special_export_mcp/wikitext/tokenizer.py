@@ -129,10 +129,15 @@ def find_unnested_pipe(text: str) -> int | None:
     return None
 
 
-_ATTR_RE = re.compile(
-    r"^\s*[A-Za-z-]+\s*=\s*(\"[^\"]*\"|'[^']*'|\S+)"
-    r"(\s+[A-Za-z-]+\s*=\s*(\"[^\"]*\"|'[^']*'|\S+))*\s*$"
-)
+#  key=value, key="value", key='value', or a bare {{template}} token (e.g.
+#  colspan="7" {{rh}}|content, seen in real car-article engine tables: a
+#  styling template with no args of its own, interleaved with a real
+#  attribute). Real MediaWiki would have already expanded that template
+#  before its own table parser ever saw this line; this project does not
+#  expand templates at this tier, so it tolerates the token structurally
+#  instead, without guessing at what {{rh}} renders to.
+_ATTR_TOKEN = r'(?:[A-Za-z-]+\s*=\s*(?:"[^"]*"|\'[^\']*\'|\S+)|\{\{[^{}]*\}\})'
+_ATTR_RE = re.compile(rf"^\s*{_ATTR_TOKEN}(?:\s+{_ATTR_TOKEN})*\s*$")
 
 
 @dataclass
