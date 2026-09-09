@@ -104,6 +104,31 @@ def test_literal_double_pipe_inside_a_template_does_not_split_the_cell() -> None
     assert tables[0].rows == [["{{tlx|a||b}} tail"]]
 
 
+def test_colspan_survives_a_styling_template_before_the_attribute_pipe() -> None:
+    # colspan="N" {{rh}}|content is a real idiom in car-article engine
+    # tables (a row-header styling template with no args, interleaved
+    # with a real attribute). Found during the manual verification pass
+    # against live articles (Skoda Octavia, Renault Clio): without this,
+    # the whole string fails the attribute-list match and falls through
+    # to content, so colspan is never applied at all.
+    wikitext = """
+{|
+|-
+! A !! B !! C
+|-
+|colspan="3" {{rh}}|[[Petrol engine]]s
+|-
+| x || y || z
+|}
+"""
+    tables = parse_tables(wikitext)
+    assert tables[0].rows == [
+        ["[[Petrol engine]]s", "[[Petrol engine]]s", "[[Petrol engine]]s"],
+        ["x", "y", "z"],
+    ]
+    assert tables[0].warnings == []
+
+
 def test_colspan_repeats_the_value() -> None:
     wikitext = """
 {|
