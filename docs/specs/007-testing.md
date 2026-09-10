@@ -26,7 +26,7 @@ a `.source` sidecar file recording the URL and the fetch date.
 Refetch command, recorded in `tests/fixtures/README.md`:
 
 ```bash
-curl -s -A "special-export-mcp/0.1 (https://github.com/Mirza404/special-export-mcp)" \
+curl -s -A "wikipedia-tables-mcp/0.1 (https://github.com/Mirza404/wikipedia-tables-mcp)" \
   "https://en.wikipedia.org/wiki/Special:Export/Volkswagen_Golf_Mk4" \
   -o tests/fixtures/volkswagen_golf_mk4.xml
 ```
@@ -64,10 +64,10 @@ GitHub Actions, on push and pull request:
 
 - Python 3.10, 3.11, 3.12, 3.13 matrix.
 - `ruff check`, `ruff format --check`.
-- `mypy special_export_mcp`.
+- `mypy wikipedia_tables_mcp`.
 - `pytest -m "not live"` with coverage.
 
-Coverage floor: 85% on `special_export_mcp/wikitext/`. That package is the part
+Coverage floor: 85% on `wikipedia_tables_mcp/wikitext/`. That package is the part
 where a silent bug produces a wrong car specification.
 
 ## 6. Manual verification against reality

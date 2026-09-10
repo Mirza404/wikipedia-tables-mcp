@@ -1,7 +1,7 @@
 # 006 — Tier 6: MCP server surface
 
-Module: `special_export_mcp/server.py`. Optional extra: `pip install
-special-export-mcp[mcp]`.
+Module: `wikipedia_tables_mcp/server.py`. Optional extra: `pip install
+wikipedia-tables-mcp[mcp]`.
 
 **This is the product.** Everything below Tier 6 exists to serve it.
 
@@ -16,10 +16,10 @@ client directly. At this request volume — a consumer's loading phase is roughl
 
 - `stdio` (default) and `sse`, matching the convention `wikipedia-mcp` uses, so
   an existing MCP host configuration needs no new concepts.
-- Entry point: `special-export-mcp` console script.
+- Entry point: `wikipedia-tables-mcp` console script.
 
 ```
-special-export-mcp --transport stdio --language en --contact you@example.com
+wikipedia-tables-mcp --transport stdio --language en --contact you@example.com
 ```
 
 CLI flags map one to one onto `SpecialExportClient` constructor arguments.

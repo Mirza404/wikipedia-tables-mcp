@@ -3,7 +3,7 @@
 Every returned table carries a breadcrumb naming the full chain of headings
 above it.
 
-Module: `special_export_mcp/wikitext/sections.py`
+Module: `wikipedia_tables_mcp/wikitext/sections.py`
 
 ## 1. Why
 

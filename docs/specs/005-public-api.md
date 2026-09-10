@@ -1,6 +1,6 @@
 # 005 — Tier 5: public Python API
 
-Module: `special_export_mcp/client.py`
+Module: `wikipedia_tables_mcp/client.py`
 
 This is the core the MCP server wraps. It is importable, but the MCP server in
 Tier 6 is the supported surface. Synchronous throughout.
@@ -8,7 +8,7 @@ Tier 6 is the supported surface. Synchronous throughout.
 ## 1. Class
 
 ```python
-from special_export_mcp import SpecialExportClient
+from wikipedia_tables_mcp import SpecialExportClient
 
 client = SpecialExportClient(
     language="en",                  # -> https://en.wikipedia.org
@@ -122,7 +122,7 @@ sink the batch. A transport-level failure of the whole request still raises.
 
 ## 5. Logging
 
-Standard `logging`, logger name `special_export_mcp`. No handler configured by
+Standard `logging`, logger name `wikipedia_tables_mcp`. No handler configured by
 the library. `INFO` for each fetch, `DEBUG` for URL and cache hits, `WARNING`
 for retries and for template warnings.
 
@@ -134,7 +134,7 @@ for retries and for template warnings.
 2. A nonexistent title returns `exists=False` and a non-empty `error`, and does
    not raise.
 3. A simulated HTTP 500 after retries raises `FetchError`, not `exists=False`.
-4. `import special_export_mcp` works with only `requests` installed — no `mcp`
+4. `import wikipedia_tables_mcp` works with only `requests` installed — no `mcp`
    package needed.
 5. With `cache_dir` set, two identical calls produce one HTTP request, and a
    third call in a fresh process also produces none.

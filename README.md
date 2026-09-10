@@ -1,4 +1,4 @@
-# special-export-mcp
+# wikipedia-tables-mcp
 
 Standalone MCP server. Fetches Wikipedia page wikitext through
 `Special:Export` and parses wikitables out of it into structured rows, with
@@ -14,19 +14,19 @@ verification pass run against 20 real car articles before release.
 Not published to PyPI. Install from git:
 
 ```bash
-pip install git+https://github.com/Mirza404/special-export-mcp.git
+pip install git+https://github.com/Mirza404/wikipedia-tables-mcp.git
 ```
 
 With the MCP server extra:
 
 ```bash
-pip install "special-export-mcp[mcp] @ git+https://github.com/Mirza404/special-export-mcp.git"
+pip install "wikipedia-tables-mcp[mcp] @ git+https://github.com/Mirza404/wikipedia-tables-mcp.git"
 ```
 
 ## Usage: as an MCP server
 
 ```bash
-special-export-mcp --transport stdio --contact you@example.com
+wikipedia-tables-mcp --transport stdio --contact you@example.com
 ```
 
 Add it to an MCP host's config the same way as any stdio server, for
@@ -36,7 +36,7 @@ example Claude Desktop's `claude_desktop_config.json`:
 {
   "mcpServers": {
     "special-export": {
-      "command": "special-export-mcp",
+      "command": "wikipedia-tables-mcp",
       "args": ["--contact", "you@example.com"]
     }
   }
@@ -53,7 +53,7 @@ tool schemas.
 ## Usage: as a Python library
 
 ```python
-from special_export_mcp import SpecialExportClient
+from wikipedia_tables_mcp import SpecialExportClient
 
 with SpecialExportClient(user_agent_contact="you@example.com") as client:
     result = client.get_page_tables("Volkswagen Golf Mk4")

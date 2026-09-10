@@ -2,7 +2,7 @@
 
 Input: one or more page titles. Output: raw wikitext per title.
 
-Module: `special_export_mcp/fetch.py`
+Module: `wikipedia_tables_mcp/fetch.py`
 
 ## 1. Endpoint
 
@@ -50,13 +50,13 @@ Wikimedia policy requires an identifying User-Agent. Follow the same format
 `wikipedia-mcp` uses:
 
 ```
-special-export-mcp/<version> (https://github.com/Mirza404/special-export-mcp)
+wikipedia-tables-mcp/<version> (https://github.com/Mirza404/wikipedia-tables-mcp)
 ```
 
 The contact segment is overridable through:
 
 1. constructor argument `user_agent_contact`, then
-2. environment variable `SPECIAL_EXPORT_CONTACT`, then
+2. environment variable `WIKIPEDIA_TABLES_CONTACT`, then
 3. the repository URL above as default.
 
 A caller may replace the whole string with `user_agent=`. If a caller passes an

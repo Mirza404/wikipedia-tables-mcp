@@ -1,7 +1,7 @@
 # Data integrity and recovery
 
 Wikipedia tables are authored data. They can be internally inconsistent even
-when the wikitext is valid. `special-export-mcp` preserves what Wikipedia
+when the wikitext is valid. `wikipedia-tables-mcp` preserves what Wikipedia
 actually contains and reports structural uncertainty; it never silently moves
 values into columns that merely look more plausible.
 

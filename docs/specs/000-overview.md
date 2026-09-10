@@ -4,7 +4,7 @@ Status: DRAFT — awaiting user review. No implementation until approved.
 
 ## 1. Purpose
 
-`special-export-mcp` is a standalone MCP server. It fetches
+`wikipedia-tables-mcp` is a standalone MCP server. It fetches
 Wikipedia page **wikitext** through `Special:Export` and parses wikitables out
 of it into structured rows.
 
@@ -12,7 +12,7 @@ It is a new project. It is not a fork of, an addition to, or a dependency of
 `wikipedia-mcp` (upstream `Rudra-ravi/wikipedia-mcp`, fork `Mirza404/wikipedia-mcp`).
 No code is shared. No file in those repos is touched.
 
-Repository: https://github.com/Mirza404/special-export-mcp
+Repository: https://github.com/Mirza404/wikipedia-tables-mcp
 
 ## 2. Why a separate fetch path
 
@@ -87,13 +87,13 @@ Consequence: the MCP server is an optional extra. The core install has
 `requests` only. Not published to PyPI — install from git:
 
 ```bash
-pip install git+https://github.com/Mirza404/special-export-mcp.git
+pip install git+https://github.com/Mirza404/wikipedia-tables-mcp.git
 ```
 
 ## 5. Module layout (proposed)
 
 ```
-special_export_mcp/
+wikipedia_tables_mcp/
   __init__.py            # version, public exports
   client.py              # SpecialExportClient — fetch + orchestrate + return
   fetch.py               # HTTP, User-Agent, retry, export XML unwrapping

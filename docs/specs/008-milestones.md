@@ -105,13 +105,13 @@ template registry is documented as English-only. `{{convert}}` does not exist on
 the German or Serbo-Croatian Wikipedias. No work is done to support them.
 
 **Q10 — naming and distribution. DECIDED.**
-Repository `https://github.com/Mirza404/special-export-mcp.git`. Import name
-`special_export_mcp`. **No PyPI publication.** `pyproject.toml` exists for
+Repository `https://github.com/Mirza404/wikipedia-tables-mcp.git`. Import name
+`wikipedia_tables_mcp`. **No PyPI publication.** `pyproject.toml` exists for
 dependencies and tool configuration only. Consumers install from git or from a
 local path:
 
 ```bash
-pip install git+https://github.com/Mirza404/special-export-mcp.git
+pip install git+https://github.com/Mirza404/wikipedia-tables-mcp.git
 ```
 
 The `[mcp]` extra still exists as an optional dependency group, so `car-dealer`

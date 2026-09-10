@@ -3,7 +3,7 @@
 Input: a raw wikitext cell value. Output: plain text a downstream regex can
 read numbers out of.
 
-Modules: `special_export_mcp/wikitext/inline.py`, `.../templates.py`
+Modules: `wikipedia_tables_mcp/wikitext/inline.py`, `.../templates.py`
 
 ## 1. Order of operations
 

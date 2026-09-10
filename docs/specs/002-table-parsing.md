@@ -4,7 +4,7 @@ Input: raw wikitext. Output: a list of tables, each a header list plus a
 rectangular row grid. Cell values at this tier are still raw wikitext.
 Tier 3 cleans them.
 
-Modules: `special_export_mcp/wikitext/tokenizer.py`, `.../tables.py`
+Modules: `wikipedia_tables_mcp/wikitext/tokenizer.py`, `.../tables.py`
 
 ## 1. Wikitable syntax handled
 

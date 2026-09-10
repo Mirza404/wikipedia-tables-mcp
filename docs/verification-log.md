@@ -7,7 +7,7 @@ template resolver correct, because the risk is a plausible wrong number, not
 a crash.
 
 Run on 2026-09-08, `SpecialExportClient(cache_dir=...)` against live
-`en.wikipedia.org`, `special-export-mcp/0.1.0` as the User-Agent. Every
+`en.wikipedia.org`, `wikipedia-tables-mcp/0.1.0` as the User-Agent. Every
 article was fetched once; every re-run while diagnosing the findings below
 cost zero further requests.
 
@@ -48,7 +48,7 @@ sometimes carry engine specs as prose or an infobox instead of a wikitable.
 
 ## Findings, and what was fixed
 
-Four real gaps surfaced, all in [PR #8](https://github.com/Mirza404/special-export-mcp/pull/8)
+Four real gaps surfaced, all in [PR #8](https://github.com/Mirza404/wikipedia-tables-mcp/pull/8)
 (this log is the next commit in the stack on top of it):
 
 1. **`hp-metric` unit alias missing.** `{{convert|90|hp-metric|kW|0|abbr=on}}`
@@ -99,7 +99,7 @@ Every cell where the authored unit was not already kW, Nm, or cc is where
 this project performs arithmetic, and a transposed constant would produce a
 plausible wrong number (spec 007 section 6's specific concern). A sample
 across the corpus, checked by hand against the conversion constants in
-[`templates.py`](../special_export_mcp/wikitext/templates.py):
+[`templates.py`](../wikipedia_tables_mcp/wikitext/templates.py):
 
 | Authored | Canonical | Computation | Result |
 |---|---|---|---|
@@ -116,7 +116,7 @@ All match hand computation to the rounding rule (round half away from zero;
 
 The parser is sound against a real, diverse 20-article sample spanning six
 manufacturers and three decades of articles. The four fixes above landed in
-[PR #8](https://github.com/Mirza404/special-export-mcp/pull/8). No further
+[PR #8](https://github.com/Mirza404/wikipedia-tables-mcp/pull/8). No further
 code changes are needed before release on the strength of this pass; the
 remaining warnings are the system correctly flagging genuine source-data
 irregularity rather than guessing through it.
