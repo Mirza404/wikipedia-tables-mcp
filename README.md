@@ -9,6 +9,31 @@ See [docs/specs](docs/specs/README.md) for the full design, and
 [docs/verification-log.md](docs/verification-log.md) for the manual
 verification pass run against 20 real car articles before release.
 
+## Project layout
+
+```
+wikipedia_tables_mcp/   the package: fetch, parse, clean, serve
+  wikitext/             the parser: tokenizer, tables, inline text, templates, sections
+docs/
+  specs/                the design docs, written and approved before any code
+  data-integrity.md     the warnings contract consumers must follow
+  verification-log.md   the pre-release manual check against 20 real articles
+tests/
+  fixtures/             real Wikipedia export XML, committed so tests never
+                         hit the network -- not project data, just sample
+                         input the test suite reads (standard pytest term:
+                         https://docs.pytest.org/en/stable/explanation/fixtures.html)
+```
+
+`tests/fixtures/` holds two real car articles (Volkswagen Golf Mk4, Škoda
+Octavia). They are not special to this project -- they were picked because
+their wikitables are messy in the specific ways the parser needs to handle
+(rowspan/colspan combinations, a genuine source-data inconsistency, repeated
+headings across sections). Any Wikipedia article with a wikitable would do;
+these two happen to exercise the most edge cases in one place. See
+[tests/fixtures/README.md](tests/fixtures/README.md) for exactly why each
+one was chosen.
+
 ## Install
 
 Not published to PyPI. Install from git:
@@ -35,7 +60,7 @@ example Claude Desktop's `claude_desktop_config.json`:
 ```json
 {
   "mcpServers": {
-    "special-export": {
+    "wikipedia-tables": {
       "command": "wikipedia-tables-mcp",
       "args": ["--contact", "you@example.com"]
     }
