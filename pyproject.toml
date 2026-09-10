@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "wikipedia-tables-mcp"
-version = "0.1.0"
+version = "0.2.0"
 description = "MCP server that fetches Wikipedia wikitext via Special:Export and parses wikitables into structured data"
 readme = "README.md"
 license = { text = "MIT" }
