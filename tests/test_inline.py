@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from special_export_mcp.wikitext.inline import clean_cell
+from wikipedia_tables_mcp.wikitext.inline import clean_cell
 
 
 def _clean(raw: str) -> str:

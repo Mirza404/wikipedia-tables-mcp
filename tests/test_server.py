@@ -13,8 +13,8 @@ from unittest.mock import MagicMock
 import pytest
 from mcp.types import CallToolResult, TextContent
 
-from special_export_mcp.client import SpecialExportClient
-from special_export_mcp.server import _parse_args, build_server
+from wikipedia_tables_mcp.client import SpecialExportClient
+from wikipedia_tables_mcp.server import _parse_args, build_server
 
 FIXTURES = Path(__file__).parent / "fixtures"
 
@@ -39,7 +39,7 @@ class FakeResponse:
 @pytest.fixture
 def mock_session(monkeypatch: pytest.MonkeyPatch) -> MagicMock:
     session = MagicMock()
-    monkeypatch.setattr("special_export_mcp.fetch.requests.Session", lambda: session)
+    monkeypatch.setattr("wikipedia_tables_mcp.fetch.requests.Session", lambda: session)
     return session
 
 
@@ -220,24 +220,24 @@ async def test_list_page_sections_reports_the_heading_tree(
 
 
 def test_import_mcp_package_absent_breaks_only_server(monkeypatch: pytest.MonkeyPatch) -> None:
-    # Purge both special_export_mcp's own cached modules and mcp's, or a
+    # Purge both wikipedia_tables_mcp's own cached modules and mcp's, or a
     # prior test's import of e.g. mcp.server.mcpserver would still resolve
     # from cache regardless of what sys.modules["mcp"] is set to.
     for name in list(sys.modules):
         if (
-            name == "special_export_mcp"
-            or name.startswith("special_export_mcp.")
+            name == "wikipedia_tables_mcp"
+            or name.startswith("wikipedia_tables_mcp.")
             or name == "mcp"
             or name.startswith("mcp.")
         ):
             monkeypatch.delitem(sys.modules, name, raising=False)
     monkeypatch.setitem(sys.modules, "mcp", None)
 
-    import special_export_mcp  # noqa: F401
-    import special_export_mcp.client  # noqa: F401
+    import wikipedia_tables_mcp  # noqa: F401
+    import wikipedia_tables_mcp.client  # noqa: F401
 
     with pytest.raises(ImportError):
-        import special_export_mcp.server  # noqa: F401
+        import wikipedia_tables_mcp.server  # noqa: F401
 
 
 def test_cli_flags_map_onto_client_constructor_arguments() -> None:

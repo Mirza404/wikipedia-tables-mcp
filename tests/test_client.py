@@ -8,8 +8,8 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from special_export_mcp import SpecialExportClient
-from special_export_mcp.errors import FetchError, PageNotFoundError
+from wikipedia_tables_mcp import SpecialExportClient
+from wikipedia_tables_mcp.errors import FetchError, PageNotFoundError
 
 FIXTURES = Path(__file__).parent / "fixtures"
 
@@ -27,7 +27,7 @@ class FakeResponse:
 @pytest.fixture
 def mock_session(monkeypatch: pytest.MonkeyPatch) -> MagicMock:
     session = MagicMock()
-    monkeypatch.setattr("special_export_mcp.fetch.requests.Session", lambda: session)
+    monkeypatch.setattr("wikipedia_tables_mcp.fetch.requests.Session", lambda: session)
     return session
 
 
@@ -71,9 +71,9 @@ def test_http_500_after_retries_raises_fetcherror_not_exists_false(
 
 
 def test_import_needs_no_mcp_package() -> None:
-    # special_export_mcp/__init__.py must not import server.py (the mcp
+    # wikipedia_tables_mcp/__init__.py must not import server.py (the mcp
     # extra) at module load time. The import succeeding is the assertion.
-    import special_export_mcp  # noqa: F401
+    import wikipedia_tables_mcp  # noqa: F401
 
 
 def test_cache_dir_makes_two_calls_produce_one_http_request(
@@ -138,7 +138,7 @@ def test_get_pages_tables_one_bad_title_does_not_sink_the_batch(
 
 
 def test_strict_mode_raises_on_a_malformed_template(mock_session: MagicMock) -> None:
-    from special_export_mcp.errors import TemplateResolutionError
+    from wikipedia_tables_mcp.errors import TemplateResolutionError
 
     xml_text = (
         '<mediawiki xmlns="http://www.mediawiki.org/xml/export-0.11/">'
@@ -180,7 +180,7 @@ def test_heading_template_warning_reaches_table_and_page_results(
 def test_strict_mode_raises_on_an_unknown_heading_template(
     mock_session: MagicMock,
 ) -> None:
-    from special_export_mcp.errors import TemplateResolutionError
+    from wikipedia_tables_mcp.errors import TemplateResolutionError
 
     xml_text = (
         '<mediawiki xmlns="http://www.mediawiki.org/xml/export-0.11/">'

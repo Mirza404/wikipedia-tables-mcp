@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from special_export_mcp.wikitext.sections import (
+from wikipedia_tables_mcp.wikitext.sections import (
     HeadingStack,
     WikitextContext,
     classify_heading,

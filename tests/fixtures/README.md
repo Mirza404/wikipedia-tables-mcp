@@ -16,11 +16,11 @@ the visible title.
 Refetch:
 
 ```bash
-curl -s -A "special-export-mcp/0.1 (https://github.com/Mirza404/special-export-mcp)" \
+curl -s -A "wikipedia-tables-mcp/0.1 (https://github.com/Mirza404/wikipedia-tables-mcp)" \
   "https://en.wikipedia.org/wiki/Special:Export/Volkswagen_Golf_Mk4" \
   -o tests/fixtures/volkswagen_golf_mk4.xml
 
-curl -s -A "special-export-mcp/0.1 (https://github.com/Mirza404/special-export-mcp)" \
+curl -s -A "wikipedia-tables-mcp/0.1 (https://github.com/Mirza404/wikipedia-tables-mcp)" \
   "https://en.wikipedia.org/wiki/Special:Export/%C5%A0koda_Octavia" \
   -o tests/fixtures/skoda_octavia.xml
 ```

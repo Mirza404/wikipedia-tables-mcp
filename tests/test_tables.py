@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
-from special_export_mcp.wikitext.tables import Limits, parse_tables
-from special_export_mcp.wikitext.templates import TemplateWarning
+from wikipedia_tables_mcp.wikitext.tables import Limits, parse_tables
+from wikipedia_tables_mcp.wikitext.templates import TemplateWarning
 
 
 def test_basic_table_headers_and_rows() -> None:

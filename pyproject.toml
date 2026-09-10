@@ -3,7 +3,7 @@ requires = ["setuptools>=68"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "special-export-mcp"
+name = "wikipedia-tables-mcp"
 version = "0.1.0"
 description = "MCP server that fetches Wikipedia wikitext via Special:Export and parses wikitables into structured data"
 readme = "README.md"
@@ -30,13 +30,13 @@ dev = [
 ]
 
 [project.urls]
-Repository = "https://github.com/Mirza404/special-export-mcp"
+Repository = "https://github.com/Mirza404/wikipedia-tables-mcp"
 
 [project.scripts]
-special-export-mcp = "special_export_mcp.server:main"
+wikipedia-tables-mcp = "wikipedia_tables_mcp.server:main"
 
 [tool.setuptools.packages.find]
-include = ["special_export_mcp*"]
+include = ["wikipedia_tables_mcp*"]
 
 [tool.ruff]
 line-length = 100
@@ -49,7 +49,7 @@ select = ["E", "F", "I", "UP", "B"]
 [tool.mypy]
 python_version = "3.10"
 strict = true
-packages = ["special_export_mcp"]
+packages = ["wikipedia_tables_mcp"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
@@ -60,7 +60,7 @@ addopts = "-m 'not live'"
 asyncio_mode = "auto"
 
 [tool.coverage.run]
-source = ["special_export_mcp/wikitext"]
+source = ["wikipedia_tables_mcp/wikitext"]
 
 [tool.coverage.report]
 fail_under = 85

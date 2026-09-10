@@ -12,8 +12,8 @@ from pathlib import Path
 
 import defusedxml.ElementTree as ET
 
-from special_export_mcp.wikitext.inline import clean_cell
-from special_export_mcp.wikitext.tables import TableWarning, parse_tables
+from wikipedia_tables_mcp.wikitext.inline import clean_cell
+from wikipedia_tables_mcp.wikitext.tables import TableWarning, parse_tables
 
 FIXTURES = Path(__file__).parent / "fixtures"
 

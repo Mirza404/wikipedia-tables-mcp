@@ -23,9 +23,9 @@ import requests
 
 from .errors import ConfigurationError, ExportParseError, FetchError, RateLimitError
 
-logger = logging.getLogger("special_export_mcp")
+logger = logging.getLogger("wikipedia_tables_mcp")
 
-REPO_URL = "https://github.com/Mirza404/special-export-mcp"
+REPO_URL = "https://github.com/Mirza404/wikipedia-tables-mcp"
 RETRYABLE_STATUS = {429, 500, 502, 503, 504}
 NON_RETRYABLE_STATUS = {400, 403, 404}
 MAX_BATCH_SIZE = 20
@@ -72,10 +72,10 @@ def _build_user_agent(user_agent: str | None, user_agent_contact: str | None) ->
         if not user_agent.strip():
             raise ConfigurationError("user_agent must not be empty")
         return user_agent
-    contact = user_agent_contact or os.environ.get("SPECIAL_EXPORT_CONTACT") or REPO_URL
+    contact = user_agent_contact or os.environ.get("WIKIPEDIA_TABLES_CONTACT") or REPO_URL
     from . import __version__
 
-    return f"special-export-mcp/{__version__} ({contact})"
+    return f"wikipedia-tables-mcp/{__version__} ({contact})"
 
 
 def _title_for_path(title: str) -> str:

@@ -1,4 +1,4 @@
-"""Tier 6: the MCP server surface. Optional extra: pip install special-export-mcp[mcp].
+"""Tier 6: the MCP server surface. Optional extra: pip install wikipedia-tables-mcp[mcp].
 
 Thin adapter: no fetch logic, no parse logic. Constructs one
 SpecialExportClient and calls it. See docs/specs/006-mcp-surface.md.
@@ -58,7 +58,7 @@ def _apply_response_bounds(
 
 def build_server(client: SpecialExportClient) -> MCPServer:
     server: MCPServer = MCPServer(
-        name="special-export-mcp",
+        name="wikipedia-tables-mcp",
         version=__version__,
         instructions=INSTRUCTIONS,
     )
@@ -147,7 +147,7 @@ def build_server(client: SpecialExportClient) -> MCPServer:
 
 
 def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
-    parser = argparse.ArgumentParser(prog="special-export-mcp")
+    parser = argparse.ArgumentParser(prog="wikipedia-tables-mcp")
     parser.add_argument("--transport", choices=["stdio", "sse"], default="stdio")
     parser.add_argument("--language", default="en")
     parser.add_argument("--base-url", default=None)

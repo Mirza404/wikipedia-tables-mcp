@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from special_export_mcp.wikitext.templates import TemplateWarning, resolve_templates
+from wikipedia_tables_mcp.wikitext.templates import TemplateWarning, resolve_templates
 
 
 def _resolve(text: str, *, strict: bool = False) -> tuple[str, list[TemplateWarning]]:
@@ -137,7 +137,7 @@ def test_unrecognized_template_produces_a_warning_and_empty_text() -> None:
 
 
 def test_strict_mode_raises_instead_of_warning() -> None:
-    from special_export_mcp.errors import TemplateResolutionError
+    from wikipedia_tables_mcp.errors import TemplateResolutionError
 
     warnings: list[TemplateWarning] = []
     try:

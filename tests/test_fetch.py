@@ -7,8 +7,8 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from special_export_mcp.errors import ExportParseError, FetchError, RateLimitError
-from special_export_mcp.fetch import Fetcher
+from wikipedia_tables_mcp.errors import ExportParseError, FetchError, RateLimitError
+from wikipedia_tables_mcp.fetch import Fetcher
 
 FIXTURES = Path(__file__).parent / "fixtures"
 
@@ -48,7 +48,7 @@ class FakeResponse:
 @pytest.fixture
 def mock_session(monkeypatch: pytest.MonkeyPatch) -> MagicMock:
     session = MagicMock()
-    monkeypatch.setattr("special_export_mcp.fetch.requests.Session", lambda: session)
+    monkeypatch.setattr("wikipedia_tables_mcp.fetch.requests.Session", lambda: session)
     return session
 
 
@@ -108,12 +108,12 @@ def test_every_request_carries_the_compliant_user_agent(mock_session: MagicMock)
     fetcher.fetch_wikitext("Golf")
 
     headers = mock_session.request.call_args.kwargs["headers"]
-    assert headers["User-Agent"].startswith("special-export-mcp/")
+    assert headers["User-Agent"].startswith("wikipedia-tables-mcp/")
     assert "test@example.com" in headers["User-Agent"]
 
 
 def test_empty_user_agent_is_rejected() -> None:
-    from special_export_mcp.errors import ConfigurationError
+    from wikipedia_tables_mcp.errors import ConfigurationError
 
     with pytest.raises(ConfigurationError):
         Fetcher(user_agent="")
@@ -253,7 +253,7 @@ def test_honours_retry_after_header(
     mock_session: MagicMock, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     slept: list[float] = []
-    monkeypatch.setattr("special_export_mcp.fetch.time.sleep", slept.append)
+    monkeypatch.setattr("wikipedia_tables_mcp.fetch.time.sleep", slept.append)
     mock_session.request.side_effect = [
         FakeResponse("", status_code=503, headers={"Retry-After": "7"}),
         FakeResponse(_page_xml("Golf")),

@@ -1,4 +1,4 @@
-"""Structured error types for special-export-mcp.
+"""Structured error types for wikipedia-tables-mcp.
 
 See docs/specs/005-public-api.md section 4 for the tree and the policy on
 which errors cross the SpecialExportClient boundary as exceptions versus
