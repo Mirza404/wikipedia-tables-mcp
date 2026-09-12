@@ -26,6 +26,27 @@ def test_basic_table_headers_and_rows() -> None:
     assert tables[0].rows == [["1", "2"], ["3", "4"]]
 
 
+def test_leading_group_header_does_not_replace_field_headers() -> None:
+    """A leading full-width engine-type label precedes the real fields on Mk7."""
+    wikitext = """
+{|
+|-
+! colspan="3" | Petrol engines
+|-
+! Model
+! Displacement
+! Power
+|-
+| 1.4 TSI
+| 1395 cc
+| 103 kW
+|}
+"""
+    tables = parse_tables(wikitext)
+    assert tables[0].headers == ["Model", "Displacement", "Power"]
+    assert tables[0].rows == [["1.4 TSI", "1395 cc", "103 kW"]]
+
+
 def test_no_header_row_when_first_row_mixes_bar_and_bang() -> None:
     wikitext = """
 {|
