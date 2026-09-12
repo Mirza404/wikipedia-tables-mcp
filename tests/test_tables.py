@@ -47,6 +47,27 @@ def test_leading_group_header_does_not_replace_field_headers() -> None:
     assert tables[0].rows == [["1.4 TSI", "1395 cc", "103 kW"]]
 
 
+def test_group_header_after_field_headers_does_not_replace_them() -> None:
+    """A fuel divider can follow the real fields before the first data row."""
+    wikitext = """
+{|
+|-
+! Model
+! Displacement
+! Power
+|-
+! colspan="3" | Petrol
+|-
+| 1.4
+| 1390 cc
+| 55 kW
+|}
+"""
+    tables = parse_tables(wikitext)
+    assert tables[0].headers == ["Model", "Displacement", "Power"]
+    assert tables[0].rows == [["1.4", "1390 cc", "55 kW"]]
+
+
 def test_no_header_row_when_first_row_mixes_bar_and_bang() -> None:
     wikitext = """
 {|
