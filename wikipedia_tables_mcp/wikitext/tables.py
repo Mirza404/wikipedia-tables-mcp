@@ -285,11 +285,17 @@ def _build_parsed_table(
         leading_header_rows += 1
 
     if leading_header_rows:
-        # Some tables begin with a full-width group label (for example,
-        # "Petrol engines") followed by the actual field labels. This tier's
-        # flat header model cannot represent both levels, so use the final
-        # contiguous all-header row before data and drop earlier group labels.
-        headers, header_truncated = _expand_headers(raw_rows[leading_header_rows - 1], limits)
+        # Some tables put a full-width group label (for example, "Petrol" or
+        # "Petrol engines") before or after their actual field labels. This
+        # tier's flat header model cannot represent both levels, so select the
+        # last leading header row with multiple authored cells. A one-cell
+        # colspan row is a group label, not a set of fields. Keep a one-cell
+        # header only when it is the table's sole leading header row.
+        leading_headers = raw_rows[:leading_header_rows]
+        field_header_row = next(
+            (row for row in reversed(leading_headers) if len(row) > 1), leading_headers[-1]
+        )
+        headers, header_truncated = _expand_headers(field_header_row, limits)
         if header_truncated:
             truncated = True
             warnings.append(
