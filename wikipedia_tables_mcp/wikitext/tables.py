@@ -278,8 +278,18 @@ def _build_parsed_table(
 
     headers: list[str] = []
     data_rows = raw_rows
-    if raw_rows and raw_rows[0] and all(c.is_header for c in raw_rows[0]):
-        headers, header_truncated = _expand_headers(raw_rows[0], limits)
+    leading_header_rows = 0
+    for raw_row in raw_rows:
+        if not raw_row or not all(cell.is_header for cell in raw_row):
+            break
+        leading_header_rows += 1
+
+    if leading_header_rows:
+        # Some tables begin with a full-width group label (for example,
+        # "Petrol engines") followed by the actual field labels. This tier's
+        # flat header model cannot represent both levels, so use the final
+        # contiguous all-header row before data and drop earlier group labels.
+        headers, header_truncated = _expand_headers(raw_rows[leading_header_rows - 1], limits)
         if header_truncated:
             truncated = True
             warnings.append(
@@ -288,7 +298,7 @@ def _build_parsed_table(
                     reason=f"header truncated at max_cells_per_row={limits.max_cells_per_row}",
                 )
             )
-        data_rows = raw_rows[1:]
+        data_rows = raw_rows[leading_header_rows:]
 
     pending: dict[int, tuple[str, int]] = {}
     grid: list[list[str]] = []
