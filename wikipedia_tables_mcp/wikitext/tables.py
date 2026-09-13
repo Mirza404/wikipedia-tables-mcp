@@ -292,9 +292,11 @@ def _build_parsed_table(
         # colspan row is a group label, not a set of fields. Keep a one-cell
         # header only when it is the table's sole leading header row.
         leading_headers = raw_rows[:leading_header_rows]
-        field_header_row = next(
-            (row for row in reversed(leading_headers) if len(row) > 1), leading_headers[-1]
+        field_header_index = next(
+            (i for i in range(len(leading_headers) - 1, -1, -1) if len(leading_headers[i]) > 1),
+            len(leading_headers) - 1,
         )
+        field_header_row = leading_headers[field_header_index]
         headers, header_truncated = _expand_headers(field_header_row, limits)
         if header_truncated:
             truncated = True
@@ -304,7 +306,14 @@ def _build_parsed_table(
                     reason=f"header truncated at max_cells_per_row={limits.max_cells_per_row}",
                 )
             )
-        data_rows = raw_rows[leading_header_rows:]
+        # A leading group-label row (e.g. "Petrol engines") is real data, not
+        # part of the flat header model -- keep it as a data row, the same
+        # treatment a mid-table group label already gets (spec 002 section
+        # 2.4: dropping it loses data).
+        other_leading_rows = (
+            leading_headers[:field_header_index] + leading_headers[field_header_index + 1 :]
+        )
+        data_rows = other_leading_rows + raw_rows[leading_header_rows:]
 
     pending: dict[int, tuple[str, int]] = {}
     grid: list[list[str]] = []
