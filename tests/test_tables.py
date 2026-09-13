@@ -44,7 +44,12 @@ def test_leading_group_header_does_not_replace_field_headers() -> None:
 """
     tables = parse_tables(wikitext)
     assert tables[0].headers == ["Model", "Displacement", "Power"]
-    assert tables[0].rows == [["1.4 TSI", "1395 cc", "103 kW"]]
+    # The group label is real data (which engines are petrol), not part of
+    # the flat header model -- kept as a data row, same as a mid-table one.
+    assert tables[0].rows == [
+        ["Petrol engines", "Petrol engines", "Petrol engines"],
+        ["1.4 TSI", "1395 cc", "103 kW"],
+    ]
 
 
 def test_group_header_after_field_headers_does_not_replace_them() -> None:
@@ -65,7 +70,10 @@ def test_group_header_after_field_headers_does_not_replace_them() -> None:
 """
     tables = parse_tables(wikitext)
     assert tables[0].headers == ["Model", "Displacement", "Power"]
-    assert tables[0].rows == [["1.4", "1390 cc", "55 kW"]]
+    assert tables[0].rows == [
+        ["Petrol", "Petrol", "Petrol"],
+        ["1.4", "1390 cc", "55 kW"],
+    ]
 
 
 def test_no_header_row_when_first_row_mixes_bar_and_bang() -> None:
